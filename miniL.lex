@@ -86,7 +86,7 @@ COMMENT ##.*
         /* make no sound, tip-toe across the floor*/
 	
 
-(\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[0-9]+)?)        {yylval.num_val = atoi(yytext); currPos += yyleng; return NUMBER;}
+(\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[0-9]+)?)        {yylval.int_val = atoi(yytext); currPos += yyleng; return NUMBER;}
 
 	
 
@@ -98,7 +98,7 @@ COMMENT ##.*
 
 	
 
-[a-zA-Z]([a-zA-Z0-9_]*[a-zA-Z0-9])*         {yylval.id_val = strdup(yytext); currPos += yyleng; return IDENT;}
+[a-zA-Z]([a-zA-Z0-9_]*[a-zA-Z0-9])*         {yylval.ident = strdup(yytext); currPos += yyleng; return IDENT;}
 
 	
 
@@ -116,6 +116,8 @@ COMMENT ##.*
 int yyparse();
 int yylex();
 
+
+/*
 int main(int argc, char ** argv)
 {
 	//yylex();
@@ -123,7 +125,7 @@ int main(int argc, char ** argv)
 
 	return 0;
 }
-
+*/
 
 
 

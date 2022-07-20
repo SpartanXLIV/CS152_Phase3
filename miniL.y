@@ -68,10 +68,9 @@ std::string new_label();
 %left ADD SUB
 %left MULT DIV MOD
 
-	/* write your rules here*/
-
 %% 
 
+  /* write your rules here */
 program: %empty
         {
           if(!mainFunc)
@@ -131,8 +130,8 @@ declarations: declaration SEMICOLON declarations
         }
         | %empty
         {
-          $$.code = strdup("");
           $$.place = strdup("");
+          $$.code = strdup("");
         };
 
 declaration: identifiers COLON INTEGER
@@ -142,38 +141,115 @@ declaration: identifiers COLON INTEGER
         }
         | identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
         {
-
-        }
-        | identifiers COLON ENUM L_PAREN identifiers R_PAREN
-        {
-
         };
 
 identifiers: ident
         {
+	  $$.place = strdup($1.place);
+          $$.code = strdup("");
+        }
+        | ident COMMA identifiers
+        {
+          std::string temp;
+          temp.append($1.place);
+          temp.append("|"); //NEED TO REMOVE NEWLINE??
+          temp.append($3.place);
 
-        };
+	  $$.place = strdup(temp.c_str());
+          $$.code = strdup("");
+        }
+        ;
 
 ident: IDENT
         {
-	  $$.code = strdup("")
-	  $$.place = $1.place;
+          $$.place = strdup($1);
+	  $$.code = strdup("")'
         };
 
 statements: statement SEMICOLON statements
         {
+          std::string temp;
+          temp.append($1.code);
+          temp.append($3.code);
 
+          $$.code = strdup(temp.c_str());
+          
         }
+        | %empty
+        {
+          $$.code = strdup($1.code);
+       
+        }
+        ;
 
 statement: var ASSIGN expression
         {
-
-        }
+	   //who can it be knocking at my door??	
+	}
+	| IF bool_exp THEN statements ENDIG
+	{
+	  //make no sound... tip-toe across the floor...
+	}
+	| IF bool_exp THEN statements ELSE statements ENDIF
+	{
+	  //if he hears, he'll knock all day!
+	}
+	| WHILE bool_exp BEGINLOOP statements ENDLOOP
+	{
+	  //i'll be trapped, and here ill have to stay.
+	}
+	| DO BEGINLOOP statements ENDLOOP WHILE bool_exp
+	{
+	  //I've done no harm, I keep to myself!
+	}
+	| READ vars
+	{
+	   std::string temp;
+	   temp.append($2.code);
+	   size_t pos = temp.find("|", 0);
+	   while(pos != std::string::npos)
+	   {
+		temp.replace(pos, 1, "<");
+		pos = temp.find("|", pos);
+	   }
+	   $$.code = strdup(temp.c_str());
+	}
+	| CONTINUE
+	{
+	   $$.code = strdup("continue\n");
+	}
+	| RETURN Expression
+	{
+	   std::string temp;
+	   temp.append($2.code);
+	   temp.append("ret ");
+	   temp.append($2.place);
+	   temp.append("\n");
+	   $$.code = strdup(temp.c_str());
+	}
+        ;
 
 bool_exp: relation_and_exp OR bool_exp
         {
-
+          std::string temp;
+          std::string dst = new_temp();
+          temp.append($1.code);
+          temp.append($3.code);
+          temp += ". " + dst + "\n";
+          temp += "|| " + dst + ", ";
+          temp.append($1.place);
+          temp.append(", ");
+          temp.append($3.place);
+          temp.append("\n");
+          $$.code = strdup(temp.c_str());
+          $$.place = strdup(dst.c_str());
         }
+        | relation_and_exp
+        {
+          $$.code = strdup($1.code);
+          $$.place = strdup($1.place);
+        }
+        ;
 
 relation_and_exp: relation_exp AND relation_and_exp
         {
@@ -214,6 +290,8 @@ relation_exp_inv: NOT relation_exp_inv
           $$.code = strdup($1.code);
           $$.code = strdup($1.place);
         }
+        ;
+
 relation_exp: expression comp expression
         {
           std::string dst = new_temp();
@@ -290,8 +368,8 @@ expression:  mult_exp ADD expression
           temp += ", ";
           temp.append($3.place);
           temp += "\n";
-          $$.code = strdup(temp.c_str);
-          $$.place = strdup(dst.c_str);
+          $$.code = strdup(temp.c_str());
+          $$.place = strdup(dst.c_str());
         }
         | mult_exp SUB expression
         {
@@ -479,7 +557,7 @@ term: var
         {
           std::string temp;
           std::string func = $1.place;
-          if(funcs.find(func) == finc.end())
+          if(funcs.find(func) == funcs.end())
           {
             printf("Calling undeclared function %s.\n", func.c_str());
           }
@@ -598,7 +676,7 @@ int main(int argc, char **argv) {
 
 void yyerror(const char *msg) 
 {
-  extern int yyline;
+  extern int yylineno;
   extern char *yytext;
 
   printf("%s on line %d at char %d at symbol \"%s\"\n", msg, yylineno, currPos, yytext);
@@ -615,6 +693,6 @@ return t;
 std::string new_label()
 {
   std::string l = "L" + std::to_string(labelCount);
-  labelCount++
+  labelCount++;
   return l;
 }
