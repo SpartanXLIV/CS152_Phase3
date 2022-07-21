@@ -163,7 +163,7 @@ identifiers: ident
 ident: IDENT
         {
           $$.place = strdup($1);
-	  $$.code = strdup("")'
+	  $$.code = strdup("");
         };
 
 statements: statement SEMICOLON statements
@@ -175,10 +175,9 @@ statements: statement SEMICOLON statements
           $$.code = strdup(temp.c_str());
           
         }
-        | %empty
+        | statement SEMICOLON
         {
           $$.code = strdup($1.code);
-       
         }
         ;
 
@@ -186,7 +185,7 @@ statement: var ASSIGN expression
         {
 	   //who can it be knocking at my door??	
 	}
-	| IF bool_exp THEN statements ENDIG
+	| IF bool_exp THEN statements ENDIF
 	{
 	  //make no sound... tip-toe across the floor...
 	}
@@ -214,11 +213,23 @@ statement: var ASSIGN expression
 	   }
 	   $$.code = strdup(temp.c_str());
 	}
+	| WRITE vars
+	{
+           std::string temp;
+           temp.append($2.code);
+           size_t pos = temp.find("|", 0);
+           while(pos != std::string::npos)
+           {
+                temp.replace(pos, 1, ">");
+                pos = temp.find("|", pos);
+           }
+           $$.code = strdup(temp.c_str());
+	}
 	| CONTINUE
 	{
 	   $$.code = strdup("continue\n");
 	}
-	| RETURN Expression
+	| RETURN expression
 	{
 	   std::string temp;
 	   temp.append($2.code);
