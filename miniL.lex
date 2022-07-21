@@ -1,19 +1,20 @@
-   /* cs152-miniL */
-   /* cs152-miniL phase1 */
-      /* cs152-miniL phase1 */
+/* cs152-miniL */
+	/* cs152-miniL phase1 */
+	/* cs152-miniL phase1 */
 %{
 /* write your C code here for definitions of variables and including headers */
 #include "miniL-parser.hpp"
-#include <string>
+//#include "lib.h"
+#include <string> 
 #include "y.tab.h"
 int currLine = 1, currPos = 1;
 
 %}
 
- /* some common rules */
+/* some common rules */
 
 DIGIT   [0-9]
-                                /*if he hears he'll knock all day*/
+/*if he hears he'll knock all day*/
 COMMENT ##.*
 
 
@@ -116,16 +117,13 @@ COMMENT ##.*
 int yyparse();
 int yylex();
 
-
-/*
-int main(int argc, char ** argv)
+/*int main(int argc, char ** argv)
 {
 	//yylex();
 	yyparse();
-
 	return 0;
-}
-*/
+}*/
+
 
 
 
